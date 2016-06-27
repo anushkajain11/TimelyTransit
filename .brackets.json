@@ -1,0 +1,10 @@
+{
+    "jscodehints.detectedExclusions": [
+        "G:/Study/mobile/ionicplatform/myMaps/platforms/android/platform_www/cordova_plugins.js",
+        "G:/Study/mobile/ionicplatform/myMaps/plugins/cordova-plugin-console/www/console-via-logger.js",
+        "G:/Study/mobile/ionicplatform/myMaps/platforms/android/platform_www/plugins/cordova-plugin-statusbar/www/statusbar.js",
+        "G:/Study/mobile/ionicplatform/myMaps/platforms/android/platform_www/plugins/cordova-plugin-whitelist/whitelist.js",
+        "G:/Study/mobile/ionicplatform/myMaps/platforms/android/platform_www/plugins/ionic-plugin-keyboard/www/android/keyboard.js",
+        "G:/Study/mobile/ionicplatform/myMaps/platforms/android/platform_www/cordova.js"
+    ]
+}

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title> Timely Transit</title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+    <script src="js/controllers.js"></script>
+<!--    <script src="js/services.js"></script>-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+
+    <script src="http://maps.googleapis.com/maps/api/js"></script>
+   <script src='js/purl.js'></script>
+    <script>
+/* function initialize()
+{
+var mapProp = {
+  center:myCenter,
+  zoom: 18,
+  mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+
+var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+var marker=new google.maps.Marker({
+  position:myCenter,
+  animation:google.maps.Animation.BOUNCE
+  });
+
+marker.setMap(map);
+} */
+var marker = null; var mapOptions;
+var directionsDisplay;
+var directionsService = new google.maps.DirectionsService();
+    var  map;
+var start;
+var buslocation; 
+        var origin;
+        
+           var abc = [];
+  
+
+        var end = $.url().param('des');
+        console.log(end)
+        var srclatitude = $.url().param('srclat');
+        var srclongitude = $.url().param('srclong');
+     console.log(srclatitude);
+function buildURL(value) {
+    if(srclatitude != null && srclatitude.length > 0) {
+        location.href = "maps.html?operation="+value+"&srclat="+srclatitude+"&srclong="+srclongitude+"&des="+end;
+    }
+    else {
+        location.href = "maps.html?operation="+value+"&src="+$.url().param('src')+"&des="+end;        
+    }
+}
+        
+var getJSON = function(url) {
+  return new Promise(function(resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function() {
+      var status = xhr.status;
+      if (status == 200) {
+        resolve(xhr.response);
+      } else {
+        reject(status);
+      }
+    };
+    xhr.send();
+  });
+};
+
+
+    
+        
+        
+function initialize() {
+    var end = $.url().param('des');
+    var srclatitude = $.url().param('srclat');
+        var srclongitude = $.url().param('srclong');
+ // start = "535 S Market St, San Jose, CA 95113";
+    console.log(srclatitude+","+srclongitude);
+  //  var latlong = new google.maps.LatLng(parseFloat(srclatitude),parseFloat(srclongitude));
+  /*  getJSON('https://maps.googleapis.com/maps/api/geocode/json?latlng='+srclatitude+","+srclongitude).then(function(results) {
+   // console.log('Your Json result is:  ' +results.result[0].formatted_address); 
+         //   console.log('Your Json result is:  ' +results[0].formatted_address); 
+
+    console.log('Your Json result is:  ' +results.results[0].formatted_address); 
+    }, function(status) { //error detection....
+  alert('Something went wrong.');
+});*/
+ // end = "Kitchen Of Kuchipudi, 2725 El Camino Real #108, Santa Clara, CA 95051";
+  var request;
+      if(srclatitude != null && srclatitude.length > 0) {
+    request = {
+        origin: { lat : parseFloat(srclatitude), lng : parseFloat(srclongitude) },
+    destination:end,
+    travelMode: google.maps.TravelMode.TRANSIT,
+    provideRouteAlternatives: true
+  };
+      }
+    else {
+        
+    request = {
+        origin: $.url().param('src') ,
+    destination:end,
+    travelMode: google.maps.TravelMode.TRANSIT,
+    provideRouteAlternatives: true
+  };
+      }
+    
+    console.log(request);
+  directionsService.route(request, function(result, status) {
+    if (status == google.maps.DirectionsStatus.OK) {
+      console.log("status is equal");
+        var marshalledRoutes = result.routes;
+        //console.log(marshalledRoutes.length);
+        for(var index in marshalledRoutes) {
+            var rout = marshalledRoutes[index];
+            var legs = rout.legs;
+            var routeString = '';
+         //   if(index == 0) {
+                var leg = legs[0];
+                //console.log(leg.steps);
+                for(var i in leg.steps) {
+                    var step = leg.steps[i];
+                    if(step.travel_mode === 'WALKING' ) {
+                        console.log('WALKING MODE - ON');
+                        console.log('Walk '+step.distance.text+ ' for '+step.duration.text);
+                        console.log(step.instructions);
+                       // routeString +=  'walk for '+step.duration.text;
+                        
+                    }
+                    else if(step.travel_mode === 'TRANSIT' ) {
+                        var transit = step.transit;
+                        console.log('TRANSIT MODE - Bus no ' +transit.line.short_name);
+                        console.log('Board bus at - '+transit.departure_stop.name+ ' by '+transit.departure_time.text);
+                        console.log('Travel for '+step.duration.text);
+                        console.log('Get down the bus at '+transit.arrival_stop.name +' by '+transit.arrival_time.text);
+                        routeString += ' Bus no. '+transit.line.short_name+ ' at '+transit.departure_time.text+' ';
+                    }
+                }
+                //var steps = legs[0].steps;
+                //console.log(steps);
+          //  }
+            abc[index] = routeString;
+            $("#test"+index).html(routeString);
+        console.log(' ==== END OF ROUTE '+index)
+        }
+        
+        //===================== code to get the locatin of the bus ==============
+        
+        
+        
+        
+        
+        
+        
+        //====================== end lcoation code ================
+        //result.routes[0] =abc;
+        //console.log(result.routes)
+     // directionsDisplay.setDirections(result);
+
+    }
+    else
+    {
+      console.log("status is not equal to direction status");
+    }
+  });
+}
+        
+//google.maps.event.addDomListener(window, 'load', initialize); 
+      //  setInterval(function() { clearExistingMarker();}, 5000);
+initialize();
+</script>
+<style type="text/css">
+  button{
+    background-color: #1da1f2;
+    box-shadow: none;
+    color: white;
+    font-size: 16px;
+    font-weight: normal;
+    padding: 12px 16px;
+    border: 0;
+  }
+</style>
+  </head>
+ <body style="
+    background: #eee;
+    width: 75%;
+    margin: 0 auto;
+">
+    <h1>Routes</h1>
+    <p>
+    <span id="test0">Bus 1</span> <a href = "javascript:buildURL(0)"><button type="button" style="background-color: #1da1f2;">Click Route</button></a>
+    </p>
+    <p>
+      <span id="test1">Bus 2</span> <a href="javascript:buildURL(1)"><button type="button">Click Route</button></a>
+    </p>
+    <p>
+    <span id="test2">Bus 3</span> <a href="javascript:buildURL(2)"><button type="button">Click Route</button></a>
+      </p>
+      <p>
+      <span id="test3">Bus 4</span> <a href="javascript:buildURL(3)"><button type="button">Click Route</button></a>
+</p>
+    
+    </body> 
+</html>
